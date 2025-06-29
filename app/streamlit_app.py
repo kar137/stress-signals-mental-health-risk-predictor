@@ -6,40 +6,62 @@ import joblib
 # load trained model
 model = joblib.load('app/best_model.pkl')
 
-st.title("StressSignals: Mental Health Risk Predictor")
+# Page Config 
+st.set_page_config(
+    page_title="StressSignals: Mental Health Risk Predictor",
+    page_icon="🧠",
+    layout="centered",
+)
 
-st.write("""
-Enter your details below to predict whether you may need mental health treatment.
+# ------------------ Header ------------------
+st.markdown("""
+# 🧠 StressSignals: Mental Health Risk Predictor
+Welcome to **StressSignals**, your AI-powered assistant for predicting the likelihood of needing mental health treatment based on workplace and personal factors.
 """)
 
-# User Inputs
-age = st.number_input("Age", min_value=18, max_value=100, value=30)
+st.info("🔎 Fill in your details below and click **Predict** to see your result.")
 
-gender = st.selectbox("Gender", options=["Male", "Female", "Other"])
-family_history = st.selectbox("Family history of mental illness?", options=["Yes", "No"])
-work_interfere = st.selectbox("Level of Work Interference due to Mental Health", options=["Never", "Rarely", "Sometimes", "Often"])
+# ------------------ Sidebar Info ------------------
+with st.sidebar:
+    st.markdown("## ℹ️ About this App")
+    st.write("""
+This app uses a machine learning model trained on workplace mental health survey data to predict whether an 
+             individual in the tech industry may require mental health treatment.
 
-company_size = st.selectbox("Company Size", options=[
-    "1-5", "6-25", "26-100", "100-500", "500-1000", "More than 1000"
-])
+**Disclaimer:** This is for educational/demo purposes only and not a medical tool.
 
-remote_work = st.selectbox("Do you work remotely?", options=["Yes", "No"])
-benefits = st.selectbox("Employer provides mental health benefits?", options=["Yes", "No"])
-care_options = st.selectbox("Availability of mental health care options?", options=["Not sure", "No", "Yes"])
-wellness_program = st.selectbox("Wellness program available?", options=["No", "Don't know", "Yes"])
-seek_help = st.selectbox("Anonymity encouraged for seeking help?", options=["No", "Don't know", "Yes"])
-anonymity = st.selectbox("Anonymity in seeking mental health treatment?", options=["No", "Don't know", "Yes"])
-leave = st.selectbox("Ease of taking leave for mental health?", options=["Very difficult", "Somewhat difficult", "Don't know", "Somewhat easy", "Very easy"])
-mental_health_consequence = st.selectbox("Fear of negative mental health consequence at work?", options=["No", "Maybe", "Yes"])
-phys_health_consequence = st.selectbox("Fear of physical health consequence at work?", options=["No", "Maybe", "Yes"])
-coworkers = st.selectbox("Comfortable discussing mental health with coworkers?", options=["No", "Some of them", "Yes"])
-supervisor = st.selectbox("Comfortable discussing with supervisor?", options=["No", "Some of them", "Yes"])
-mental_health_interview = st.selectbox("Would mental health issues affect interview decision?", options=["No", "Maybe", "Yes"])
-phys_health_interview = st.selectbox("Would physical health issues affect interview decision?", options=["No", "Maybe", "Yes"])
-mental_vs_physical = st.selectbox("Does employer value mental health like physical health?", options=["Don't know", "No", "Yes"])
-obs_consequence = st.selectbox("Observed negative consequences for colleagues with mental health issues?", options=["No", "Yes"])
+**Author:** [Karan Bista](https://github.com/kar137)
+    """)
+    st.markdown("💻 Built with Streamlit & scikit-learn.")
 
-# Data Preprocessing
+
+# user Inputs
+with st.container():
+    st.markdown("### 📋 Input Your Details:")
+
+    age = st.slider("Select your Age", min_value=18, max_value=100, value=30)
+
+    gender = st.radio("Gender", options=["Male", "Female", "Other"])
+    family_history = st.radio("Family history of mental illness?", options=["Yes", "No"])
+    work_interfere = st.selectbox("Work Interference due to Mental Health", options=["Never", "Rarely", "Sometimes", "Often"])
+    company_size = st.selectbox("Company Size", options=["1-5", "6-25", "26-100", "100-500", "500-1000", "More than 1000"])
+    remote_work = st.radio("Do you work remotely?", options=["Yes", "No"])
+    benefits = st.radio("Employer provides mental health benefits?", options=["Yes", "No"])
+    care_options = st.radio("Availability of mental health care options?", options=["Not sure", "No", "Yes"])
+    wellness_program = st.radio("Wellness program available?", options=["No", "Don't know", "Yes"])
+    seek_help = st.radio("Anonymity encouraged for seeking help?", options=["No", "Don't know", "Yes"])
+    anonymity = st.radio("Anonymity in seeking mental health treatment?", options=["No", "Don't know", "Yes"])
+    leave = st.selectbox("Ease of taking leave for mental health?", options=["Very difficult", "Somewhat difficult", "Don't know", "Somewhat easy", "Very easy"])
+    mental_health_consequence = st.selectbox("Fear of negative mental health consequence at work?", options=["No", "Maybe", "Yes"])
+    phys_health_consequence = st.selectbox("Fear of physical health consequence at work?", options=["No", "Maybe", "Yes"])
+    coworkers = st.selectbox("Comfortable discussing mental health with coworkers?", options=["No", "Some of them", "Yes"])
+    supervisor = st.selectbox("Comfortable discussing with supervisor?", options=["No", "Some of them", "Yes"])
+    mental_health_interview = st.selectbox("Would mental health issues affect interview decision?", options=["No", "Maybe", "Yes"])
+    phys_health_interview = st.selectbox("Would physical health issues affect interview decision?", options=["No", "Maybe", "Yes"])
+    mental_vs_physical = st.selectbox("Does employer value mental health like physical health?", options=["Don't know", "No", "Yes"])
+    obs_consequence = st.radio("Observed negative consequences for colleagues with mental health issues?", options=["No", "Yes"])
+
+# Preprocessing 
 def preprocess(age, gender, family_history, work_interfere, company_size, remote_work, benefits, care_options,
                wellness_program, seek_help, anonymity, leave, mental_health_consequence, phys_health_consequence,
                coworkers, supervisor, mental_health_interview, phys_health_interview, mental_vs_physical, obs_consequence):
@@ -85,8 +107,8 @@ def preprocess(age, gender, family_history, work_interfere, company_size, remote
 
     return data
 
-# Prediction
-if st.button("Predict Mental Health Treatment Need"):
+# ------------------ Prediction & Output ------------------
+if st.button("🚀 Predict Mental Health Treatment Need"):
     input_df = preprocess(
         age, gender, family_history, work_interfere, company_size, remote_work, benefits,
         care_options, wellness_program, seek_help, anonymity, leave,
@@ -97,7 +119,12 @@ if st.button("Predict Mental Health Treatment Need"):
     prediction = model.predict(input_df)[0]
     proba = model.predict_proba(input_df)[0][1]
 
+    st.markdown("## 📊 Prediction Result:")
+
     if prediction == 1:
-        st.success(f"Prediction: You may need mental health treatment.\nProbability: {proba:.2f}")
+        st.error(f"🔴 You **may need** mental health treatment.\n\n**Prediction Probability:** `{proba:.2f}`")
     else:
-        st.info(f"Prediction: You may not need mental health treatment.\nProbability: {proba:.2f}")
+        st.success(f"🟢 You **may not need** mental health treatment.\n\n**Prediction Probability:** `{proba:.2f}`")
+
+    st.markdown("---")
+    st.caption("⚠️ _This is a predictive tool, not a clinical diagnosis._")
